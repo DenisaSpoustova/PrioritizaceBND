@@ -712,6 +712,12 @@
         }
 
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+</head>
 </head>
 <body>
     <!-- Levý sidebar -->
@@ -855,6 +861,47 @@
     </div>
 
     <script>
+        // FIREBASE KONFIGURACE - vlož sem svou konfiguraci z kroku 4
+        const firebaseConfig = {
+            apiKey: "AIzaSyCH3tjx4II3mQAZm65R384cG1qZhdZJMJI",
+            authDomain: "prioritizacebnd.firebaseapp.com", 
+            databaseURL: "https://prioritizacebnd-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "prioritizacebnd",
+            storageBucket: "prioritizacebnd.firebasestorage.app",
+            messagingSenderId: "813202302793",
+            appId: "1:813202302793:web:014fd91f129fe05be0dc98"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        let currentUser = null;
+        let isAdmin = false;
+
+        // Autentizace
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            if (user) {
+                // Zkontroluj jestli je admin (vlož sem svůj User UID z kroku 3)
+                isAdmin = (user.uid === 'gI8ql0icowQYEbbLaSdJ6Jitydk1');
+                console.log('Přihlášen jako:', user.email, 'Admin:', isAdmin);
+                loadTasksFromFirebase();
+            } else {
+                showLoginForm();
+            }
+        });
+
+        // Přihlášení
+        function showLoginForm() {
+            const email = prompt('Email:');
+            const password = prompt('Heslo:');
+            if (email && password) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch(error => alert('Chyba přihlášení: ' + error.message));
+            }
+        }
+        
         // Data struktura
         let tasks = [];
         let currentView = 'zadano';
@@ -888,17 +935,28 @@
             switchView('k-naceneni');
         });
 
-        // Načtení tasků z localStorage
+        // Načtení tasků z Firebase
         function loadTasks() {
-            const saved = localStorage.getItem('tasks');
-            if (saved) {
-                tasks = JSON.parse(saved);
-            }
+            // Už nic nedělá - data se načítají z Firebase
         }
 
-        // Uložení tasků do localStorage
+        function loadTasksFromFirebase() {
+            database.ref('tasks').on('value', snapshot => {
+                const data = snapshot.val();
+                tasks = data ? Object.values(data) : [];
+                renderNavigation();
+                updateFilters();
+                renderContent();
+            });
+        }
+
+        // Uložení tasků do Firebase
         function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            if (!isAdmin) {
+                alert('Nemáte oprávnění upravovat data');
+                return;
+            }
+            database.ref('tasks').set(tasks);
         }
 
         // Vykreslení navigace v sidebaru
@@ -1143,6 +1201,10 @@
 
                 // Otevření modalu pro nový task
         function openTaskModal() {
+            if (!isAdmin) {
+                alert('Pouze admin může přidávat tasky');
+                return;
+            }
             const modal = document.getElementById('taskModal');
             const form = document.getElementById('taskForm');
             
