@@ -759,6 +759,7 @@
                     </div>
                 </div>
                 <div class="utility-buttons">
+                    <button class="utility-btn" onclick="showLoginForm()" id="adminLoginBtn">🔐 Admin</button>
                     <button class="utility-btn" onclick="exportData()">📥 Export</button>
                     <button class="utility-btn" onclick="document.getElementById('importFile').click()">📤 Import</button>
                     <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
@@ -882,19 +883,21 @@
         // Autentizace
         auth.onAuthStateChanged(user => {
             currentUser = user;
+            const loginBtn = document.getElementById('adminLoginBtn');
+    
             if (user) {
-                // Zkontroluj jestli je admin (vlož sem svůj User UID z kroku 3)
                 isAdmin = (user.uid === 'gI8ql0icowQYEbbLaSdJ6Jitydk1');
-                console.log('Přihlášen jako:', user.email, 'Admin:', isAdmin);
-                loadTasksFromFirebase();
+                if (loginBtn) loginBtn.style.display = 'none'; // Skryj po přihlášení
             } else {
-                showLoginForm();
+                isAdmin = false;
+                if (loginBtn) loginBtn.style.display = 'block'; // Zobraz pro nepřihlášené
             }
+            loadTasksFromFirebase();
         });
 
-        // Přihlášení
+        // Odstraň funkci showLoginForm() nebo ji uprav:
         function showLoginForm() {
-            const email = prompt('Email:');
+            const email = prompt('Admin email:');
             const password = prompt('Heslo:');
             if (email && password) {
                 auth.signInWithEmailAndPassword(email, password)
