@@ -1153,11 +1153,10 @@
                 const currentStateIndex = STATES.findIndex(s => s.id === task.state);
                 const canGoNext = currentStateIndex < STATES.length - 1;
                 const canGoPrev = currentStateIndex > 0;
+                const prevStateName = canGoPrev ? STATES[currentStateIndex - 1].name : '';
+                const nextStateName = canGoNext ? STATES[currentStateIndex + 1].name : '';
                 
-                return `
-                    const prevStateName = canGoPrev ? STATES[currentStateIndex - 1].name : '';
-                    const nextStateName = canGoNext ? STATES[currentStateIndex + 1].name : '';
-                    
+                return `    
                     <div class="task-card priority-${task.priority}" onclick="editTask(${taskIndex})">
                         <div class="task-id">${task.id} ${jiraLink}</div>
                         <div class="task-title">${task.title}</div>
