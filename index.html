@@ -627,6 +627,27 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
+            font-family: inherit;
+        }
+
+        .utility-btn.export-btn {
+            background: #f0f0f0;  /* Světle šedé pozadí */
+            color: #333;  /* Černý text */
+            border: 1px solid #333;  /* Černý okraj */
+        }
+
+        .utility-btn.export-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .utility-btn.admin-btn {
+            background: white;  /* Bílé pozadí */
+            color: #333;  /* Černý text */
+            border: 1px solid #333;  /* Černý okraj */
+        }
+
+        .utility-btn.admin-btn:hover {
+            background: #f5f5f5;
         }
 
         .utility-btn:hover {
@@ -759,10 +780,10 @@
                     </div>
                 </div>
                 <div class="utility-buttons">
-                    <button class="utility-btn" onclick="showLoginForm()" id="adminLoginBtn">🔐 Admin</button>
-                    <button class="utility-btn" onclick="exportData()">📥 Export</button>
-                    <button class="utility-btn" onclick="document.getElementById('importFile').click()">📤 Import</button>
-                    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+                    <button class="utility-btn admin-btn" onclick="showLoginForm()" id="adminLoginBtn">🔐 Admin</button>
+                    <button class="utility-btn export-btn" onclick="exportData()">📥 Export</button>
+            <!--     <button class="utility-btn" onclick="document.getElementById('importFile').click()">📤 Import</button> -->
+             <!--      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)"> --->
                 </div>
             </div>
         </div>
@@ -1202,7 +1223,7 @@
             }
         }
 
-                // Otevření modalu pro nový task
+        // Otevření modalu pro nový task
         function openTaskModal() {
             if (!isAdmin) {
                 alert('Pouze admin může přidávat tasky');
