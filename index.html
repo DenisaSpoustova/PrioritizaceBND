@@ -1155,6 +1155,9 @@
                 const canGoPrev = currentStateIndex > 0;
                 
                 return `
+                    const prevStateName = canGoPrev ? STATES[currentStateIndex - 1].name : '';
+                    const nextStateName = canGoNext ? STATES[currentStateIndex + 1].name : '';
+                    
                     <div class="task-card priority-${task.priority}" onclick="editTask(${taskIndex})">
                         <div class="task-id">${task.id} ${jiraLink}</div>
                         <div class="task-title">${task.title}</div>
@@ -1163,8 +1166,8 @@
                             ${commentIcon}
                         </div>
                         <div class="task-actions" onclick="event.stopPropagation()">
-                            ${canGoPrev ? `<button class="task-action-btn" onclick="moveTaskPrev(${taskIndex})">← Předchozí</button>` : ''}
-                            ${canGoNext ? `<button class="task-action-btn primary" onclick="moveTaskNext(${taskIndex})">Další →</button>` : ''}
+                            ${canGoPrev ? `<button class="task-action-btn" onclick="moveTaskPrev(${taskIndex})">← ${prevStateName}</button>` : ''}
+                            ${canGoNext ? `<button class="task-action-btn primary" onclick="moveTaskNext(${taskIndex})">${nextStateName} →</button>` : ''}
                         </div>
                     </div>
                 `;
