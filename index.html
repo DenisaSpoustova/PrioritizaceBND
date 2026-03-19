@@ -35,13 +35,10 @@
             border-bottom: 1px solid #e0e0e0;
         }
 
-        .sidebar-header h1 {
-            font-size: 18px;  /* ZMĚŇ z 20px na 18px */
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;  /* PŘIDEJ TOTO - zabrání zalomení */
-            overflow: hidden;  /* PŘIDEJ TOTO */
-            text-overflow: ellipsis;  /* PŘIDEJ TOTO */
+        .sidebar-header img {
+            max-width: 180px;
+            height: auto;
+            display: block;
         }
 
         .sidebar-nav {
@@ -744,7 +741,7 @@
     <!-- Levý sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>Prioritizace Bernardýn</h1>
+            <img src="logo.jpg" alt="Prioritizace Bernardýn" style="max-width: 100%; height: auto;">
         </div>
         
         <div class="sidebar-nav" id="sidebarNav"></div>
