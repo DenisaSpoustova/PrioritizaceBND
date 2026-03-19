@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <style>
+                * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Levý sidebar */
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;  /* ZMĚŇ z 20px na 18px */
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;  /* PŘIDEJ TOTO - zabrání zalomení */
+            overflow: hidden;  /* PŘIDEJ TOTO */
+            text-overflow: ellipsis;  /* PŘIDEJ TOTO */
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .sidebar-nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav-item:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .sidebar-nav-item.active {
+            background: #E3F2FD;
+            color: #2196F3;
+            border-left-color: #2196F3;
+            font-weight: 500;
+        }
+
+        .sidebar-nav-item .badge {
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .sidebar-nav-item.active .badge {
+            background: #2196F3;
+            color: white;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .add-task-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-task-btn:hover {
+            background: #45a049;
+        }
+
+        /* Hlavní obsah vpravo */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            width: 100%;  /* PŘIDEJ TOTO */
+        }
+
+        .content-header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            line-height: 1.2;
+        }
+
+        .utility-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .utility-btn {
+            padding: 8px 16px;
+            background: #9E9E9E;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .utility-btn:hover {
+            background: #757575;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f5f5f5;
+     /*       width: 100%; */
+        }
+
+        .nav-tabs {
+            display: none; /* Už se nepoužívá */
+        }
+
+        .content {
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .view-header {
+            display: none; /* Přesunuto do content-header */
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #e0e0e0;
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .tab-btn.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .badge {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .view-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .add-task-btn {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .add-task-btn:hover {
+            background: #45a049;
+        }
+
+        /* Zadáno view - velikostní sloupce */
+        .size-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            max-width: 100%;
+        }
+
+        .size-column {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+
+        .size-column h3 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Task cards */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        /* Barevná pozadí podle priority */
+        .task-card.priority-1 { 
+            border-left-color: #4CAF50;
+            background: #f1f8f4;  /* světle zelená */
+        }
+        .task-card.priority-2 { 
+            border-left-color: #8BC34A;
+            background: #f4f9ed;  /* velmi světle zelená */
+        }
+        .task-card.priority-3 { 
+            border-left-color: #FFC107;
+            background: #fffbf0;  /* světle žlutá */
+        }
+        .task-card.priority-4 { 
+            border-left-color: #FF9800;
+            background: #fff8f0;  /* světle oranžová */
+        }
+        .task-card.priority-5 { 
+            border-left-color: #F44336;
+            background: #fef5f5;  /* světle červená */
+        }
+
+        .task-card:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+        }
+
+        /* Priority colors */
+        .task-card.priority-1 { border-left-color: #4CAF50; }
+        .task-card.priority-2 { border-left-color: #8BC34A; }
+        .task-card.priority-3 { border-left-color: #FFC107; }
+        .task-card.priority-4 { border-left-color: #FF9800; }
+        .task-card.priority-5 { border-left-color: #F44336; }
+
+        .task-id {
+            font-size: 10px;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .task-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .task-tag {
+            background: #E3F2FD;
+            color: #1976D2;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .comment-icon {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .task-actions {
+            display: none;  /* ZMĚŇ - úplně skryté */
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .task-card:hover .task-actions {
+            display: flex;  /* PŘIDEJ - při hoveru se zobrazí */
+        }
+
+        .task-action-btn {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+
+        .task-action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .task-action-btn.primary {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .task-action-btn.primary:hover {
+            background: #1976D2;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            padding-bottom: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            min-height: 400px;
+            overflow-y: auto;
+            position: relative; 
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+        }
+
+        .filters-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: #333;
+            font-family: inherit;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            min-width: 120px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-danger {
+            background: #F44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .comment-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .comment-date {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .utility-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .utility-btn {
+            padding: 8px 16px;
+            background: #9E9E9E;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .utility-btn:hover {
+            background: #757575;
+        }
+
+        .comments-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            max-height: 250px;  /* PŘIDEJ TOTO */
+            overflow-y: auto;    /* PŘIDEJ TOTO */
+        }
+
+        .comments-list {
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .add-comment-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-comment-form input {
+            flex: 1;
+        }
+
+        .jira-link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #2196F3;
+            text-decoration: none;
+            padding: 4px 8px;
+            background: #E3F2FD;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .jira-link:hover {
+            background: #BBDEFB;
+            text-decoration: none;
+        }
+
+        .jira-icon {
+            margin-right: 4px;
+        }
+
+        .jira-link-inline {
+            font-size: 14px;
+            text-decoration: none;
+            margin-left: 6px;
+            display: inline-block;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .jira-link-inline:hover {
+            opacity: 1;
+        }
+
+         .task-requester {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .task-requester strong {
+            color: #333;
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            cursor: move;
+        }
+
+        .task-card.drag-over {
+            border-top: 3px solid #2196F3;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Levý sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Prioritizace Bernardýn</h1>
+        </div>
+        
+        <div class="sidebar-nav" id="sidebarNav"></div>
+        
+        <div class="sidebar-footer">
+            <button class="add-task-btn" onclick="openTaskModal()">
+                <span>+</span> Nový task
+            </button>
+        </div>
+    </div>
+
+    <!-- Hlavní obsah vpravo -->
+    <div class="main-content">
+        <div class="content-header">
+            <h2 id="viewTitle"></h2>
+            <div class="filters-row">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label>Hledat:</label>
+                        <input type="text" id="searchInput" placeholder="ID nebo název..." onkeyup="applyFilters()" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit; width: 180px;">
+                    </div>
+                    <div class="filter-group">
+                        <label>Zadavatel:</label>
+                        <select id="filterRequester" onchange="applyFilters()">
+                            <option value="">Všichni</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tag:</label>
+                        <select id="filterTag" onchange="applyFilters()">
+                            <option value="">Všechny</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="utility-buttons">
+                    <button class="utility-btn" onclick="exportData()">📥 Export</button>
+                    <button class="utility-btn" onclick="document.getElementById('importFile').click()">📤 Import</button>
+                    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area" id="contentArea"></div>
+    </div>
+        
+
+    <!-- Modal pro vytvoření/editaci tasku -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Nový task</h3>
+                <button class="close-btn" onclick="closeTaskModal()">&times;</button>
+            </div>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <input type="hidden" id="editingTaskIndex" value="">
+                
+                <div class="form-group">
+                    <label>ID tasku *</label>
+                    <input type="text" id="taskIdInput" required placeholder="např. BER-1234">
+                </div>
+
+                <div class="form-group">
+                    <label>Název tasku *</label>
+                    <input type="text" id="taskTitleInput" required placeholder="Stručný popis tasku">
+                </div>
+
+                <div class="form-group" id="priorityGroup">
+                    <label>Priorita (1-5) *</label>
+                    <select id="taskPriority">
+                        <option value="">-- Vyberte prioritu --</option>
+                        <option value="1">1 - Nejnižší (zelená)</option>
+                        <option value="2">2 - Nízká (světle zelená)</option>
+                        <option value="3">3 - Střední (žlutá)</option>
+                        <option value="4">4 - Vysoká (oranžová)</option>
+                        <option value="5">5 - Urgentní (červená)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="sizeGroup">
+                    <label>Velikost *</label>
+                    <select id="taskSize">
+                        <option value="">-- Vyberte velikost --</option>
+                        <option value="small">Malý task</option>
+                        <option value="semi-small">Polomalý task</option>
+                        <option value="medium">Střední task</option>
+                        <option value="semi-large">Středně velký task</option>
+                        <option value="large">Velký task</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tagy (oddělené čárkou)</label>
+                    <input type="text" id="taskTags" placeholder="např. backend, frontend, bug" list="tagSuggestions">
+                    <datalist id="tagSuggestions"></datalist>
+                </div>
+
+                <div class="form-group">
+                    <label>JIRA odkaz</label>
+                    <input type="url" id="taskJiraUrl" placeholder="https://jira.example.com/browse/PROJ-123">
+                </div>
+
+                <div class="form-group">
+                    <label>Zadavatel</label>
+                    <input type="text" id="taskRequester" placeholder="Jméno osoby, která task zadala" list="requesterSuggestions">
+                    <datalist id="requesterSuggestions"></datalist>
+                </div>
+
+                <div class="comments-section" id="commentsSection" style="display: none;">
+                    <h4>Komentáře</h4>
+                    <div class="comments-list" id="commentsList"></div>
+                    <div class="add-comment-form">
+                        <input type="text" id="newComment" placeholder="Přidat komentář">
+                        <button type="button" class="btn btn-secondary" onclick="addComment()">Přidat</button>
+                    </div>
+                </div>
+
+                <div id="requesterDisplay" style="display: none; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px; font-size: 13px;">
+                    <strong>Zadavatel:</strong> <span id="requesterName"></span>
+                </div>
+
+                <div id="requesterDisplay" style="display: none; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px; font-size: 13px;">
+                    <strong>Zadavatel:</strong> <span id="requesterName"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="deleteBtn" style="display: none;" onclick="deleteTask()">Smazat</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Zrušit</button>
+                    <button type="submit" class="btn btn-primary">Uložit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+    </div>
+
+    <script>
+        // Data struktura
+        let tasks = [];
+        let currentView = 'zadano';
+        
+                // Definice stavů
+        const STATES = [
+            { id: 'k-naceneni', name: 'K nacenění' },
+            { id: 'zadano', name: 'Zadáno' },
+            { id: 'k-analyze', name: 'K analýze' },
+            { id: 'analyzovano', name: 'Analyzováno' },
+            { id: 've-vyvoji', name: 'Ve vývoji' },
+            { id: 'k-testu', name: 'K testu' },
+            { id: 'testovano', name: 'Testováno' },
+            { id: 'nasazeno', name: 'Nasazeno' }
+        ];
+
+        // Definice velikostí
+        const SIZES = {
+            'small': 'Malý task',
+            'semi-small': 'Polomalý task',
+            'medium': 'Střední task',
+            'semi-large': 'Středně velký task',
+            'large': 'Velký task'
+        };
+
+        // Inicializace při načtení stránky
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            renderNavigation();
+            updateFilters(); 
+            switchView('k-naceneni');
+        });
+
+        // Načtení tasků z localStorage
+        function loadTasks() {
+            const saved = localStorage.getItem('tasks');
+            if (saved) {
+                tasks = JSON.parse(saved);
+            }
+        }
+
+        // Uložení tasků do localStorage
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Vykreslení navigace v sidebaru
+        function renderNavigation() {
+            const sidebarNav = document.getElementById('sidebarNav');
+            sidebarNav.innerHTML = '';
+            
+            STATES.forEach(state => {
+                // Filtruj tasky podle stavu a pak podle aktivních filtrů
+                const stateTasks = tasks.filter(t => t.state === state.id);
+                const filteredTasks = filterTasks(stateTasks);
+                const count = filteredTasks.length;
+                
+                const item = document.createElement('div');
+                item.className = 'sidebar-nav-item';
+                if (state.id === currentView) {
+                    item.classList.add('active');
+                }
+                item.innerHTML = `
+                    <span>${state.name}</span>
+                    <span class="badge">${count}</span>
+                `;
+                item.onclick = () => switchView(state.id);
+                sidebarNav.appendChild(item);
+            });
+        }
+
+        // Přepnutí zobrazení
+        function switchView(viewId) {
+            currentView = viewId;
+            renderNavigation();
+            renderContent();
+        }
+
+        // Vykreslení obsahu
+        function renderContent() {
+            const state = STATES.find(s => s.id === currentView);
+            document.getElementById('viewTitle').textContent = state.name;
+            
+            const contentArea = document.getElementById('contentArea');
+            
+            if (currentView === 'zadano') {
+                renderZadanoView(contentArea);
+            } else if (currentView === 'k-naceneni') {
+                renderKNaceneniView(contentArea);
+            } else {
+                renderStandardView(contentArea);
+            }
+        }
+
+        // Vykreslení pohledu "Zadáno" s velikostními sloupci
+        function renderZadanoView(container) {
+            const stateTasks = filterTasks(tasks.filter(t => t.state === 'zadano'));
+            
+            let html = '<div class="size-columns">';
+            
+            Object.keys(SIZES).forEach(sizeKey => {
+                const sizeTasks = stateTasks.filter(t => t.size === sizeKey);
+                
+                // PŘIDEJ ŘAZENÍ: Seřaď tasky podle priority sestupně (5=červená nahoře, 1=zelená dole)
+                sizeTasks.sort((a, b) => {
+                    const priorityA = parseInt(a.priority) || 0;
+                    const priorityB = parseInt(b.priority) || 0;
+                    return priorityB - priorityA;  // Sestupně - vyšší priorita nahoře
+                });
+                
+                html += `
+                    <div class="size-column">
+                        <h3>
+                            ${SIZES[sizeKey]}
+                            <span class="badge">${sizeTasks.length}</span>
+                        </h3>
+                        ${renderTaskCards(sizeTasks)}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Vykreslení pohledu "K nacenění" - jednoduchý seznam
+        function renderKNaceneniView(container) {
+            const stateTasks = filterTasks(tasks.filter(t => t.state === 'k-naceneni')); 
+
+            if (stateTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Žádné tasky k nacenění</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `<div class="tasks-grid">${renderKNaceneniCards(stateTasks)}</div>`;
+        }
+
+        // Vykreslení karet pro K nacenění (bez priority)
+        function renderKNaceneniCards(taskList) {
+            return taskList.map(task => {
+                const taskIndex = tasks.indexOf(task);
+                const hasComments = task.comments && task.comments.length > 0;
+                const commentIcon = hasComments ? `<span class="comment-icon">💬 ${task.comments.length}</span>` : '';
+                
+                const tags = task.tags ? task.tags.split(',').map(tag => 
+                    `<span class="task-tag">${tag.trim()}</span>`
+                ).join('') : '';
+                
+                const jiraLink = task.jiraUrl ? 
+                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation()" target="_blank" title="Otevřít JIRA">🔗</a>` : '';
+                
+                return `
+                    <div class="task-card" 
+                         style="border-left-color: #999;" 
+                         draggable="true"
+                         data-task-index="${taskIndex}"
+                         ondragstart="handleDragStart(event)"
+                         ondragend="handleDragEnd(event)"
+                         ondragover="handleDragOver(event)"
+                         ondrop="handleDrop(event)"
+                         onclick="openPrioritizeModal(${taskIndex})">
+                        <div class="task-id">${task.id} ${jiraLink}</div>
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">
+                            ${tags}
+                            ${commentIcon}
+                        </div>
+                        <div class="task-actions" onclick="event.stopPropagation()">
+                            <button class="task-action-btn primary" onclick="openPrioritizeModal(${taskIndex})">Přiřadit prioritu a velikost</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Vykreslení standardního pohledu (grid)
+        function renderStandardView(container) {
+            const stateTasks = filterTasks(tasks.filter(t => t.state === currentView));
+            
+            if (stateTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Žádné tasky v tomto stavu</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `<div class="tasks-grid">${renderTaskCards(stateTasks)}</div>`;
+        }
+
+        // Vykreslení karet tasků
+        function renderTaskCards(taskList) {
+            if (taskList.length === 0) {
+                return '<p style="color: #999; font-size: 13px; padding: 10px;">Žádné tasky</p>';
+            }
+            
+            return taskList.map(task => {
+                const taskIndex = tasks.indexOf(task);
+                const hasComments = task.comments && task.comments.length > 0;
+                const commentIcon = hasComments ? `<span class="comment-icon">💬 ${task.comments.length}</span>` : '';
+                
+                const tags = task.tags ? task.tags.split(',').map(tag => 
+                    `<span class="task-tag">${tag.trim()}</span>`
+                ).join('') : '';
+                
+                // ZMĚNA: JIRA link vedle ID tasku
+                const jiraLink = task.jiraUrl ? 
+                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation()" target="_blank" title="Otevřít JIRA">🔗</a>` : '';
+                
+                const currentStateIndex = STATES.findIndex(s => s.id === task.state);
+                const canGoNext = currentStateIndex < STATES.length - 1;
+                const canGoPrev = currentStateIndex > 0;
+                
+                return `
+                    <div class="task-card priority-${task.priority}" onclick="editTask(${taskIndex})">
+                        <div class="task-id">${task.id} ${jiraLink}</div>
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">
+                            ${tags}
+                            ${commentIcon}
+                        </div>
+                        <div class="task-actions" onclick="event.stopPropagation()">
+                            ${canGoPrev ? `<button class="task-action-btn" onclick="moveTaskPrev(${taskIndex})">← Předchozí</button>` : ''}
+                            ${canGoNext ? `<button class="task-action-btn primary" onclick="moveTaskNext(${taskIndex})">Další →</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Aktualizace našeptávání pro formulář
+        function updateSuggestions() {
+            // Našeptávání pro zadavatele
+            const requesters = [...new Set(tasks.map(t => t.requester).filter(r => r))].sort();
+            const requesterDatalist = document.getElementById('requesterSuggestions');
+            if (requesterDatalist) {
+                requesterDatalist.innerHTML = requesters.map(r => `<option value="${r}">`).join('');
+            }
+
+            // Našeptávání pro tagy - jednotlivé tagy
+            const allTags = tasks.map(t => t.tags).filter(t => t).join(',');
+            const tags = [...new Set(allTags.split(',').map(t => t.trim()).filter(t => t))].sort();
+            const tagDatalist = document.getElementById('tagSuggestions');
+            if (tagDatalist) {
+                tagDatalist.innerHTML = tags.map(t => `<option value="${t}">`).join('');
+            }
+        }
+
+        // Posun tasku na další stav
+        function moveTaskNext(index) {
+            const task = tasks[index];
+            
+            // Pokud je task v "K nacenění", musí nejprve dostat prioritu a velikost
+            if (task.state === 'k-naceneni') {
+                openPrioritizeModal(index);
+                return;
+            }
+            
+            const currentStateIndex = STATES.findIndex(s => s.id === task.state);
+            if (currentStateIndex < STATES.length - 1) {
+                task.state = STATES[currentStateIndex + 1].id;
+                saveTasks();
+                renderNavigation();
+                renderContent();
+            }
+        }
+
+        // Posun tasku na předchozí stav
+        function moveTaskPrev(index) {
+            const task = tasks[index];
+            const currentStateIndex = STATES.findIndex(s => s.id === task.state);
+            if (currentStateIndex > 0) {
+                task.state = STATES[currentStateIndex - 1].id;
+                saveTasks();
+                renderNavigation();
+                renderContent();
+            }
+        }
+
+                // Otevření modalu pro nový task
+        function openTaskModal() {
+            const modal = document.getElementById('taskModal');
+            const form = document.getElementById('taskForm');
+            
+            if (!modal || !form) {
+                console.error('Modal nebo form nenalezen!');
+                return;
+            }
+
+            updateSuggestions(); 
+            
+            document.getElementById('modalTitle').textContent = 'Nový task';
+            form.reset();
+            document.getElementById('editingTaskIndex').value = '';
+            
+            const commentsSection = document.getElementById('commentsSection');
+            const deleteBtn = document.getElementById('deleteBtn');
+            const priorityGroup = document.getElementById('priorityGroup');
+            const sizeGroup = document.getElementById('sizeGroup');
+            const taskPriority = document.getElementById('taskPriority');
+            const taskSize = document.getElementById('taskSize');
+            
+            // ZMĚŇ TOTO - místo skrytí zobraz prázdné komentáře
+            if (commentsSection) {
+                commentsSection.style.display = 'block';
+                document.getElementById('commentsList').innerHTML = '<p style="color: #999; font-size: 13px;">Zatím žádné komentáře</p>';
+            }
+            
+            if (deleteBtn) deleteBtn.style.display = 'none';
+            
+            // Skrýt prioritu a velikost pro nový task a odstranit required
+            if (priorityGroup) priorityGroup.style.display = 'none';
+            if (sizeGroup) sizeGroup.style.display = 'none';
+            if (taskPriority) taskPriority.required = false;
+            if (taskSize) taskSize.required = false;
+            
+            modal.classList.add('active');
+            
+            // Scrollnout modal obsah nahoru
+            setTimeout(() => {
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.scrollTop = 0;
+                }
+            }, 50);
+        }
+
+        // Editace tasku
+        function editTask(index) {
+            const task = tasks[index];
+            document.getElementById('modalTitle').textContent = 'Upravit task';
+            document.getElementById('editingTaskIndex').value = index;
+            document.getElementById('taskIdInput').value = task.id;
+            document.getElementById('taskTitleInput').value = task.title;
+            document.getElementById('taskPriority').value = task.priority || '';
+            document.getElementById('taskSize').value = task.size || '';
+            document.getElementById('taskTags').value = task.tags || '';
+            document.getElementById('taskJiraUrl').value = task.jiraUrl || '';
+            document.getElementById('taskRequester').value = task.requester || '';  
+            
+            // Zobrazit prioritu a velikost pouze pokud task není v "K nacenění"
+            if (task.state === 'k-naceneni') {
+                document.getElementById('priorityGroup').style.display = 'none';
+                document.getElementById('sizeGroup').style.display = 'none';
+            } else {
+                document.getElementById('priorityGroup').style.display = 'block';
+                document.getElementById('sizeGroup').style.display = 'block';
+            }
+            
+            // Zobrazení komentářů
+            if (task.comments && task.comments.length > 0) {
+                document.getElementById('commentsSection').style.display = 'block';
+                renderComments(task.comments);
+            } else {
+                document.getElementById('commentsSection').style.display = 'block';
+                document.getElementById('commentsList').innerHTML = '<p style="color: #999; font-size: 13px;">Zatím žádné komentáře</p>';
+            }
+            
+            document.getElementById('deleteBtn').style.display = 'block';
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        // Otevření modalu pro přiřazení priority a velikosti
+        function openPrioritizeModal(index) {
+            const task = tasks[index];
+            document.getElementById('modalTitle').textContent = 'Přiřadit prioritu a velikost';
+            document.getElementById('editingTaskIndex').value = index;
+            document.getElementById('taskIdInput').value = task.id;
+            document.getElementById('taskTitleInput').value = task.title;
+            document.getElementById('taskPriority').value = task.priority || '';
+            document.getElementById('taskSize').value = task.size || '';
+            document.getElementById('taskTags').value = task.tags || '';
+            document.getElementById('taskJiraUrl').value = task.jiraUrl || '';
+            
+            // Zobrazit prioritu a velikost
+            document.getElementById('priorityGroup').style.display = 'block';
+            document.getElementById('sizeGroup').style.display = 'block';
+            
+            // Nastavit required atributy
+            document.getElementById('taskPriority').required = true;
+            document.getElementById('taskSize').required = true;
+            
+            // Zobrazení komentářů
+            if (task.comments && task.comments.length > 0) {
+                document.getElementById('commentsSection').style.display = 'block';
+                renderComments(task.comments);
+            } else {
+                document.getElementById('commentsSection').style.display = 'block';
+                document.getElementById('commentsList').innerHTML = '<p style="color: #999; font-size: 13px;">Zatím žádné komentáře</p>';
+            }
+            
+            document.getElementById('deleteBtn').style.display = 'block';
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        // Vykreslení komentářů
+        function renderComments(comments) {
+            const list = document.getElementById('commentsList');
+            list.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-date">${new Date(comment.date).toLocaleString('cs-CZ')}</div>
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // Přidání komentáře
+        function addComment() {
+            const input = document.getElementById('newComment');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const index = document.getElementById('editingTaskIndex').value;
+            if (index === '') return;
+            
+            if (!tasks[index].comments) {
+                tasks[index].comments = [];
+            }
+            
+            tasks[index].comments.push({
+                text: text,
+                date: new Date().toISOString()
+            });
+            
+            renderComments(tasks[index].comments);
+            input.value = '';
+            saveTasks();
+        }
+
+        // Zavření modalu
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        // Uložení tasku
+        function saveTask(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('editingTaskIndex').value;
+            const isNewTask = index === '';
+            const currentState = isNewTask ? 'k-naceneni' : tasks[index].state;
+            
+            const taskData = {
+                id: document.getElementById('taskIdInput').value,
+                title: document.getElementById('taskTitleInput').value,
+                tags: document.getElementById('taskTags').value,
+                jiraUrl: document.getElementById('taskJiraUrl').value,
+                requester: document.getElementById('taskRequester').value,  // NOVÉ
+                state: currentState,
+                comments: isNewTask ? [] : tasks[index].comments || []
+            };
+            
+            // Přidat prioritu a velikost pouze pokud jsou vyplněné
+            const priority = document.getElementById('taskPriority').value;
+            const size = document.getElementById('taskSize').value;
+            
+            if (priority && size) {
+                taskData.priority = priority;
+                taskData.size = size;
+                
+                if (currentState === 'k-naceneni') {
+                    taskData.state = 'zadano';
+                }
+            }
+            
+            if (isNewTask) {
+                tasks.push(taskData);
+            } else {
+                tasks[index] = {
+                    ...tasks[index],
+                    ...taskData
+                };
+            }
+            
+            saveTasks();
+            updateSuggestions();
+            closeTaskModal();
+            renderNavigation();
+            updateFilters();  // NOVÉ - aktualizuje seznam filtrů
+            renderContent();
+        }
+
+        // Smazání tasku
+        function deleteTask() {
+            if (!confirm('Opravdu chcete smazat tento task?')) return;
+            
+            const index = document.getElementById('editingTaskIndex').value;
+            if (index !== '') {
+                tasks.splice(index, 1);
+                saveTasks();
+                closeTaskModal();
+                renderNavigation();
+                renderContent();
+            }
+        }
+
+        // Export dat
+        function exportData() {
+            const dataStr = JSON.stringify(tasks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `task-tracker-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+                // Import dat
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        tasks = imported;
+                        saveTasks();
+                        renderNavigation();
+                        renderContent();
+                        alert('Data byla úspěšně importována!');
+                    } else {
+                        alert('Neplatný formát souboru');
+                    }
+                } catch (error) {
+                    alert('Chyba při načítání souboru: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input pro opětovné použití
+            event.target.value = '';
+        }
+
+        // Zavření modalu kliknutím mimo něj
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTaskModal();
+            }
+        });
+
+        // Globální filtry
+        let activeFilters = {
+            requester: '',
+            tag: '',
+            search: ''
+        };
+
+        // Aktualizace selectů filtrů
+        function updateFilters() {
+            // Získej unikátní zadavatele
+            const requesters = [...new Set(tasks.map(t => t.requester).filter(r => r))].sort();
+            const requesterSelect = document.getElementById('filterRequester');
+            if (requesterSelect) {
+                const currentValue = requesterSelect.value;
+                requesterSelect.innerHTML = '<option value="">Všichni</option>' + 
+                    requesters.map(r => `<option value="${r}" ${r === currentValue ? 'selected' : ''}>${r}</option>`).join('');
+            }
+
+            // Získej unikátní tagy
+            const allTags = tasks.map(t => t.tags).filter(t => t).join(',');
+            const tags = [...new Set(allTags.split(',').map(t => t.trim()).filter(t => t))].sort();
+            const tagSelect = document.getElementById('filterTag');
+            if (tagSelect) {
+                const currentValue = tagSelect.value;
+                tagSelect.innerHTML = '<option value="">Všechny</option>' + 
+                    tags.map(t => `<option value="${t}" ${t === currentValue ? 'selected' : ''}>${t}</option>`).join('');
+            }
+        }
+
+        // Aplikace filtrů
+        function applyFilters() {
+            const requesterSelect = document.getElementById('filterRequester');
+            const tagSelect = document.getElementById('filterTag');
+            const searchInput = document.getElementById('searchInput'); 
+            
+            activeFilters.requester = requesterSelect ? requesterSelect.value : '';
+            activeFilters.tag = tagSelect ? tagSelect.value : '';
+            activeFilters.search = searchInput ? searchInput.value.trim().toLowerCase() : '';  
+            
+            renderNavigation();
+            renderContent();
+        }
+
+        // Filtrování tasků
+        function filterTasks(taskList) {
+            return taskList.filter(task => {
+                // Filter podle zadavatele
+                if (activeFilters.requester && task.requester !== activeFilters.requester) {
+                    return false;
+                }
+                
+                // Filter podle tagu
+                if (activeFilters.tag) {
+                    const taskTags = task.tags ? task.tags.split(',').map(t => t.trim()) : [];
+                    if (!taskTags.includes(activeFilters.tag)) {
+                        return false;
+                    }
+                }
+                
+                // Filter podle vyhledávání (ID nebo název)
+                if (activeFilters.search) {
+                    const searchLower = activeFilters.search;
+                    const idMatch = task.id.toLowerCase().includes(searchLower);
+                    const titleMatch = task.title.toLowerCase().includes(searchLower);
+                    if (!idMatch && !titleMatch) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        }
+
+        // funkce na drag and drop funkcionalitu
+        let draggedTaskIndex = null;
+
+        function handleDragStart(event) {
+            draggedTaskIndex = parseInt(event.currentTarget.dataset.taskIndex);
+            event.currentTarget.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(event) {
+            event.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            
+            const targetCard = event.currentTarget;
+            if (targetCard.classList.contains('task-card')) {
+                targetCard.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const targetIndex = parseInt(event.currentTarget.dataset.taskIndex);
+            
+            if (draggedTaskIndex !== null && draggedTaskIndex !== targetIndex) {
+                // Oba tasky musí být v K nacenění
+                if (tasks[draggedTaskIndex].state === 'k-naceneni' && 
+                    tasks[targetIndex].state === 'k-naceneni') {
+                    
+                    // Přesuň task v poli
+                    const draggedTask = tasks[draggedTaskIndex];
+                    tasks.splice(draggedTaskIndex, 1);
+                    
+                    // Najdi nový index (může se změnit po splice)
+                    const newTargetIndex = tasks.indexOf(tasks.find(t => t === tasks[targetIndex]));
+                    tasks.splice(newTargetIndex, 0, draggedTask);
+                    
+                    saveTasks();
+                    renderContent();
+                }
+            }
+            
+            event.currentTarget.classList.remove('drag-over');
+            draggedTaskIndex = null;
+            return false;
+        }
+    </script>
+</body>
+</html>
