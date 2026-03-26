@@ -87,6 +87,12 @@
             color: white;
         }
 
+        .sidebar-nav-item[data-state="zruseno"] {
+            margin-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+        }
+
         .sidebar-footer {
             padding: 15px;
             border-top: 1px solid #e0e0e0;
@@ -654,6 +660,32 @@
             background: #757575;
         }
 
+        .cancel-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: #F44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 24px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .task-card:hover .cancel-btn {
+            opacity: 1;
+        }
+
+        .cancel-btn:hover {
+            background: #d32f2f;
+        }
+
         .comments-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -939,7 +971,8 @@
             { id: 've-vyvoji', name: 'Ve vývoji' },
             { id: 'k-testu', name: 'K testu' },
             { id: 'testovano', name: 'Testováno' },
-            { id: 'nasazeno', name: 'Nasazeno' }
+            { id: 'nasazeno', name: 'Nasazeno' },
+            { id: 'zruseno', name: 'Zrušeno' }
         ];
 
         // Definice velikostí
@@ -996,6 +1029,7 @@
                 
                 const item = document.createElement('div');
                 item.className = 'sidebar-nav-item';
+                item.setAttribute('data-state', state.id);
                 if (state.id === currentView) {
                     item.classList.add('active');
                 }
@@ -1103,6 +1137,7 @@
                          ondragover="handleDragOver(event)"
                          ondrop="handleDrop(event)"
                          onclick="openPrioritizeModal(${taskIndex})">
+                        <button class="cancel-btn" onclick="cancelTask(${taskIndex}); event.stopPropagation();" title="Zrušit task">×</button>
                         <div class="task-id">${task.id} ${jiraLink}</div>
                         <div class="task-title">${task.title}</div>
                         <div class="task-meta">
@@ -1223,6 +1258,16 @@
                 renderNavigation();
                 renderContent();
             }
+        }
+
+        // Přesun tasku do Zrušeno
+        function cancelTask(index) {
+            if (!confirm('Opravdu chcete zrušit tento task?')) return;
+    
+            tasks[index].state = 'zruseno';
+            saveTasks();
+            renderNavigation();
+            renderContent();
         }
 
         // Otevření modalu pro nový task
