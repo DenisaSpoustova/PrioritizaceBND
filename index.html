@@ -885,6 +885,18 @@
                     <datalist id="requesterSuggestions"></datalist>
                 </div>
 
+                <div class="form-group">
+                    <label>Analytik</label>
+                    <input type="text" id="taskAnalytik" placeholder="Jméno analytika" list="analytikSuggestions">
+                    <datalist id="analytikSuggestions"></datalist>
+                </div>
+
+                <div class="form-group">
+                    <label>Vývojář</label>
+                    <input type="text" id="taskVyvojar" placeholder="Jméno vývojáře" list="vyvojarSuggestions">
+                    <datalist id="vyvojarSuggestions"></datalist>
+                </div>
+
                 <div class="comments-section" id="commentsSection" style="display: none;">
                     <h4>Komentáře</h4>
                     <div class="comments-list" id="commentsList"></div>
@@ -1221,6 +1233,20 @@
                 requesterDatalist.innerHTML = requesters.map(r => `<option value="${r}">`).join('');
             }
 
+            // Našeptávání pro analytiky
+            const analytici = [...new Set(tasks.map(t => t.analytik).filter(a => a))].sort();
+            const analytikDatalist = document.getElementById('analytikSuggestions');
+            if (analytikDatalist) {
+                analytikDatalist.innerHTML = analytici.map(a => `<option value="${a}">`).join('');
+            }
+
+            // Našeptávání pro vývojáře
+            const vyvojari = [...new Set(tasks.map(t => t.vyvojar).filter(v => v))].sort();
+            const vyvojarDatalist = document.getElementById('vyvojarSuggestions');
+            if (vyvojarDatalist) {
+                vyvojarDatalist.innerHTML = vyvojari.map(v => `<option value="${v}">`).join('');
+            }
+
             // Našeptávání pro tagy - jednotlivé tagy
             const allTags = tasks.map(t => t.tags).filter(t => t).join(',');
             const tags = [...new Set(allTags.split(',').map(t => t.trim()).filter(t => t))].sort();
@@ -1367,6 +1393,8 @@
             document.getElementById('taskTags').value = task.tags || '';
             document.getElementById('taskJiraUrl').value = task.jiraUrl || '';
             document.getElementById('taskRequester').value = task.requester || '';  
+            document.getElementById('taskAnalytik').value = task.analytik || '';
+            document.getElementById('taskVyvojar').value = task.vyvojar || '';
             
             // Zobrazit prioritu a velikost pouze pokud task není v "K nacenění"
             if (task.state === 'k-naceneni') {
@@ -1402,6 +1430,8 @@
             document.getElementById('taskTags').value = task.tags || '';
             document.getElementById('taskJiraUrl').value = task.jiraUrl || '';
             document.getElementById('taskRequester').value = task.requester || '';
+            document.getElementById('taskAnalytik').value = task.analytik || '';
+            document.getElementById('taskVyvojar').value = task.vyvojar || '';
             
             // Zobrazit prioritu a velikost
             document.getElementById('priorityGroup').style.display = 'block';
@@ -1477,6 +1507,8 @@
                 tags: document.getElementById('taskTags').value,
                 jiraUrl: document.getElementById('taskJiraUrl').value,
                 requester: document.getElementById('taskRequester').value,  // NOVÉ
+                analytik: document.getElementById('taskAnalytik').value,
+                vyvojar: document.getElementById('taskVyvojar').value,
                 state: currentState,
                 comments: isNewTask ? [] : tasks[index].comments || []
             };
