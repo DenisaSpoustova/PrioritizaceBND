@@ -1242,7 +1242,23 @@
             
             const currentStateIndex = STATES.findIndex(s => s.id === task.state);
             if (currentStateIndex < STATES.length - 1) {
-                task.state = STATES[currentStateIndex + 1].id;
+                const nextState = STATES[currentStateIndex + 1].id;
+                task.state = nextState;
+
+                // Automaticky zaznamenej datum podle nového stavu
+                const now = new Date().toISOString();
+                if (nextState === 'analyzovano') {
+                    task.datumAnalyzy = now;
+                } else if (nextState === 'ceka-na-vyvoj') {
+                    task.datumKonceAnalyzy = now;
+                } else if (nextState === 've-vyvoji') {
+                    task.datumVyvoje = now;
+                } else if (nextState === 'k-testu') {
+                    task.datumKTestu = now;
+                } else if (nextState === 'nasazeno') {
+                    task.datumNasazeni = now;
+                }
+        
                 saveTasks();
                 renderNavigation();
                 renderContent();
@@ -1254,12 +1270,28 @@
             const task = tasks[index];
             const currentStateIndex = STATES.findIndex(s => s.id === task.state);
             if (currentStateIndex > 0) {
-                task.state = STATES[currentStateIndex - 1].id;
+                const prevState = STATES[currentStateIndex - 1].id;
+                task.state = prevState;
+        
+                // NOVÉ: Při vrácení zpět smaž datum, které bylo nastaveno pro aktuální stav
+                const currentState = STATES[currentStateIndex].id;
+                if (currentState === 'analyzovano') {
+                    delete task.datumAnalyzy;
+                } else if (currentState === 'ceka-na-vyvoj') {
+                    delete task.datumKonceAnalyzy;
+                } else if (currentState === 've-vyvoji') {
+                    delete task.datumVyvoje;
+                } else if (currentState === 'k-testu') {
+                    delete task.datumKTestu;
+                } else if (currentState === 'nasazeno') {
+                    delete task.datumNasazeni;
+                }
+        
                 saveTasks();
                 renderNavigation();
                 renderContent();
             }
-        }
+        }    
 
         // Přesun tasku do Zrušeno
         function cancelTask(index) {
@@ -1452,6 +1484,15 @@
             // Přidat prioritu a velikost pouze pokud jsou vyplněné
             const priority = document.getElementById('taskPriority').value;
             const size = document.getElementById('taskSize').value;
+
+            // Zachovej existující datumy akcí pokud editujeme task
+            if (!isNewTask && tasks[index]) {
+                if (tasks[index].datumAnalyzy) taskData.datumAnalyzy = tasks[index].datumAnalyzy;
+                if (tasks[index].datumKonceAnalyzy) taskData.datumKonceAnalyzy = tasks[index].datumKonceAnalyzy;
+                if (tasks[index].datumVyvoje) taskData.datumVyvoje = tasks[index].datumVyvoje;
+                if (tasks[index].datumKTestu) taskData.datumKTestu = tasks[index].datumKTestu;
+                if (tasks[index].datumNasazeni) taskData.datumNasazeni = tasks[index].datumNasazeni;
+            }
             
             if (priority && size) {
                 taskData.priority = priority;
