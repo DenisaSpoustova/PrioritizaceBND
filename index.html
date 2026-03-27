@@ -1163,7 +1163,7 @@
                 ).join('') : '';
                 
                 const jiraLink = task.jiraUrl ? 
-                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation()" target="_blank" title="Otevřít JIRA">🔗</a>` : '';
+                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" title="Otevřít JIRA">🔗</a>` : '';
                 
                 return `
                     <div class="task-card" 
@@ -1224,7 +1224,7 @@
                 
                 // ZMĚNA: JIRA link vedle ID tasku
                 const jiraLink = task.jiraUrl ? 
-                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation()" target="_blank" title="Otevřít JIRA">🔗</a>` : '';
+                    `<a href="${task.jiraUrl}" class="jira-link-inline" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" title="Otevřít JIRA">🔗</a>` : '';
                 
                 const currentStateIndex = STATES.findIndex(s => s.id === task.state);
                 const canGoNext = currentStateIndex < STATES.length - 1;
